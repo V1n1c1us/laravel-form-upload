@@ -10,14 +10,17 @@ use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
 //MODEL's
 use App\Produto;
+//use Intervention\Image\ImageManagerStatic as Image;
+use Image;
 
 class HomeController extends Controller
 {
     private $produto;
 
-    public function __construct(Produto $produto)
+    public function __construct(Produto $produto, Image $imga)
     {
         $this->produto = $produto;
+        $this->imga = $imga;
     }
 
     public function home ()
@@ -33,15 +36,36 @@ class HomeController extends Controller
         $nome = $request->input('nome');
         $descricao = $request->input('descricao');
         $img = $request->file('image');
-        $fileName = str_random(30) . '.' . '' . $request->file('image')->getClientOriginalExtension();
-        $user_folder = 'foto_produto'.$request->id;
-        $destination = public_path() . DIRECTORY_SEPARATOR .'storage'. DIRECTORY_SEPARATOR . $user_folder;
-        $fullPath = DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . $user_folder . DIRECTORY_SEPARATOR .$fileName;
 
-        if(Storage::allFiles($user_folder) == []){
-             $request->file('image')->move($destination, $fileName);
+        $fileName = str_random(30) . '.' . $request->file('image')->getClientOriginalExtension();
+
+        $user_folder = 'foto_produto'.$request->id;
+        $user_folder_thumb = 'foto_produto_thumb'.$request->id;
+
+        $filenameextension = $request->file('image')->getClientOriginalName();
+
+        $namefile = pathinfo($filenameextension, PATHINFO_FILENAME);
+
+        $extension = $request->file('image')->getClientOriginalExtension();
+
+        $filenamestore = $namefile.'_'.time().'.'.$extension;
+
+        $request->file('image')->StoreAs('public/storage/foto_produto', $filenamestore);
+        $request->file('image')->StoreAs('public/storage/foto_produto_thumb', $filenamestore);
+
+        $thumbnailpath = public_path('storage/foto_produto_thumb'.$filenamestore);
+        $img = Image::make($thumbnailpath)->resize(250,250)->save($thumbnailpath, 50);
+
+       // if(Storage::allFiles($user_folder) == []){
+            //$imga= Image::make($img);
+            //$imga->save(public_path().$fullPath, 50);
+            //$thumbnailpath = ""
+             //= Image::make($img)->save(public_path().$fullPath, 50);
+            //$request->file('image')->move($destination, $fileName);
+            //$request->file('image')->move($destination_thumb, $fileName);
+
         //     //DB::table('produtos')->where('id', $request->id)->update(['image' => $fullPath]);
-        }
+       // }
         //make store
         $insert = $this->produto->create([
             'nome' => $nome,

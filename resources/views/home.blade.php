@@ -37,7 +37,7 @@
             @forelse ($produtos as $produto)
             <div class="col-md-4">
                 <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="\storage\foto_produto\{{ $produto->image }}" alt="Card image cap" height="250">
+                    <img class="card-img-top" src="\storage\foto_produto_thumb\{{ $produto->image }}" alt="Card image cap" height="250">
                     <div class="card-body">
                         <h5 class="card-title">{{ $produto->nome }}</h5>
                     <p class="card-text"> {{ $produto->descricao }}</p>
